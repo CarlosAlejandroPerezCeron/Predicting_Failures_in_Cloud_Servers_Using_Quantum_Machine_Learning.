@@ -37,3 +37,15 @@ async def predict_failure(metrics: ServerMetrics):
     inputs = np.array([metrics.cpu, metrics.ram, metrics.temp, metrics.latency, metrics.disk, metrics.errors]) / 100
     risk = quantum_model(inputs)
     return {"server_failure_risk": risk}
+# 📌 Cargar dataset mejorado
+df_logs = pd.read_csv("log_anomalies_v2.csv")
+
+X = df_logs.drop(columns=["anomaly"]).values
+y = df_logs["anomaly"].values
+
+# 📌 Dividir datos en entrenamiento y prueba
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 📌 Entrenar el clasificador cuántico con el nuevo dataset
+qsvc = QSVC(quantum_kernel=quantum_kernel)
+qsvc.fit(X_train, y_train)
